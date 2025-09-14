@@ -76,12 +76,12 @@ export function HeroSection() {
                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-[0_0_25px_rgba(3,252,211,0.5)] hover:scale-105 transition-all duration-300"
               >
                 <a
-                  href="https://qkinmnpr8gzqyfly.public.blob.vercel-storage.com/Hariharan%20R%20_%20Resume%20.pdf"
+                  href="https://qkinmnpr8gzqyfly.public.blob.vercel-storage.com/Hariharan%20R%20-%20Resume%20.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <Download className="mr-2 h-5 w-5" />
-                  Download Resume
+                  View Resume
                 </a>
               </Button>
               
