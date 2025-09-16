@@ -126,7 +126,7 @@ export function HeroSection() {
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full animate-pulse" />
                 <img
-                  src="/passport1.png"
+                  src="/passport3.png"
                   alt="Hariharan R"
                   className="w-full h-full object-cover relative z-10"
                 />
