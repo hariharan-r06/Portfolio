@@ -126,7 +126,7 @@ export function HeroSection() {
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full animate-pulse" />
                 <img
-                  src="/WhatsApp Image 2024-11-27 at 08.45.10_38181fd4.jpg"
+                  src="/passport1.png"
                   alt="Hariharan R"
                   className="w-full h-full object-cover relative z-10"
                 />
