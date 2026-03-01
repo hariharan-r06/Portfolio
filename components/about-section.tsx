@@ -6,8 +6,8 @@ import { GraduationCap, Code, Lightbulb } from "lucide-react"
 export function AboutSection() {
   const ref = useRef<HTMLElement>(null)
 
-  useEffect(() => 
-    const observer = new IntersectionObserver(
+  useEffect(() => {
+    const observer = new IntersectionObserver
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
