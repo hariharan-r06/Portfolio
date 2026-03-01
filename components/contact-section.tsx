@@ -1,10 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { motion } from "framer-motion"
-import { useRef, useState } from "react"
-import { useDirectionalInView } from "@/hooks/use-scroll-direction"
+import { useEffect, useRef, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -56,8 +53,7 @@ const socialLinks = [
 ]
 
 export function ContactSection() {
-  const ref = useRef(null)
-  const isInView = useDirectionalInView(ref, "-100px")
+  const ref = useRef<HTMLElement>(null)
   const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: "",
@@ -65,21 +61,36 @@ export function ContactSection() {
     message: "",
   })
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible")
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      const elements = ref.current.querySelectorAll(".fade-in-up")
+      elements.forEach((el) => observer.observe(el))
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Create mailto link with form data
     const subject = `Portfolio Contact from ${formData.name}`
     const body = `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
     const mailtoLink = `mailto:harihari91408@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
     
-    // Open email client
     window.location.href = mailtoLink
-    
-    // Reset form
     setFormData({ name: "", email: "", message: "" })
     
-    // Show success toast
     toast({
       title: "Email Client Opened",
       description: "Your email client will open with the message pre-filled. Please send the email to complete the contact process.",
@@ -95,57 +106,48 @@ export function ContactSection() {
   }
 
   return (
-    <section id="contact" className="py-20 bg-muted/30" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.55 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 gradient-text">Get In Touch</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full" />
-          <p className="text-lg text-muted-foreground mt-6 max-w-2xl mx-auto">
-            {
-              "I'm always open to discussing new opportunities, interesting projects, or just having a chat about technology."
-            }
+    <section id="contact" className="section-spacing bg-background" ref={ref}>
+      <div className="container-custom">
+        {/* Section Header */}
+        <div className="text-center mb-16 md:mb-20 fade-in-up">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 gradient-text">
+            Get In Touch
+          </h2>
+          <div className="w-16 h-1 bg-primary mx-auto rounded-full mb-6 neon-glow" />
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            I'm always open to discussing new opportunities, interesting projects, or just having a chat about
+            technology.
           </p>
-        </motion.div>
+        </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Contact Information */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-            transition={{ duration: 0.55, delay: 0.15 }}
-            className="space-y-8"
-          >
+          <div className="space-y-8 fade-in-up">
             <div>
               <h3 className="text-2xl font-heading font-semibold mb-6">Contact Information</h3>
               <div className="space-y-4">
-                {contactInfo.map((info, index) => (
-                  <motion.div
+                {contactInfo.map((info) => (
+                  <div
                     key={info.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={{ delay: 0.25 + index * 0.06, duration: 0.45 }}
-                    /* Added teal glow hover effect */
-                    className="flex items-center space-x-4 p-4 bg-card/50 backdrop-blur-sm rounded-lg border border-border hover-glow transition-all duration-300"
+                    className="flex items-center gap-4 p-4 card-modern card-hover group"
                   >
-                    <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                      <info.icon className="w-6 h-6 text-primary" />
+                    <div className="p-3 bg-primary/10 rounded-lg border border-primary/20 group-hover:bg-primary/20 transition-colors duration-200 shrink-0">
+                      <info.icon className="w-5 h-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="font-medium">{info.label}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-muted-foreground mb-1">{info.label}</p>
                       {info.href ? (
-                        <a href={info.href} className="text-muted-foreground hover:text-primary transition-colors">
+                        <a
+                          href={info.href}
+                          className="text-base text-foreground hover:text-primary transition-colors duration-200 break-all"
+                        >
                           {info.value}
                         </a>
                       ) : (
-                        <p className="text-muted-foreground">{info.value}</p>
+                        <p className="text-base text-foreground">{info.value}</p>
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -153,84 +155,96 @@ export function ContactSection() {
             {/* Social Links */}
             <div>
               <h3 className="text-2xl font-heading font-semibold mb-6">Connect With Me</h3>
-              <div className="flex space-x-4">
-                {socialLinks.map((link, index) => (
-                  <motion.a
+              <div className="flex flex-wrap gap-3">
+                {socialLinks.map((link) => (
+                  <a
                     key={link.name}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
-                    transition={{ delay: 0.35 + index * 0.06, duration: 0.45 }}
-                    whileHover={{ scale: 1.1 }}
-                    /* Added teal glow and improved styling */
-                    className="p-4 bg-card/50 backdrop-blur-sm border border-border rounded-lg hover-glow transition-all duration-300 group"
+                    className="p-4 card-modern border-border hover:border-primary/40 rounded-xl hover:scale-105 transition-all duration-200 group"
+                    aria-label={`Visit ${link.name} profile`}
                   >
-                    <link.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </motion.a>
+                    <link.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                  </a>
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-            transition={{ duration: 0.55, delay: 0.25 }}
-          >
-            <Card className="bg-card/50 backdrop-blur-sm hover-glow transition-all duration-300">
+          <div className="fade-in-up">
+            <Card className="card-modern card-hover">
               <CardHeader>
-                <CardTitle className="text-2xl font-heading">Send Me a Message</CardTitle>
+                <CardTitle className="text-2xl font-heading text-primary">
+                  Send Me a Message
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Fill out the form below and I'll get back to you as soon as possible.
+                </p>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="space-y-2">
+                    <label htmlFor="name" className="text-sm font-medium text-foreground">
+                      Name
+                    </label>
                     <Input
+                      id="name"
                       name="name"
                       placeholder="Your Name"
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full bg-background/50 border-border focus:border-primary focus:ring-primary/20"
+                      className="w-full bg-card border-border focus:border-primary/50 focus:ring-primary/20 transition-all duration-200"
+                      aria-required="true"
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="text-sm font-medium text-foreground">
+                      Email
+                    </label>
                     <Input
+                      id="email"
                       name="email"
                       type="email"
-                      placeholder="Your Email"
+                      placeholder="your.email@example.com"
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full bg-background/50 border-border focus:border-primary focus:ring-primary/20"
+                      className="w-full bg-card border-border focus:border-primary/50 focus:ring-primary/20 transition-all duration-200"
+                      aria-required="true"
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
+                    <label htmlFor="message" className="text-sm font-medium text-foreground">
+                      Message
+                    </label>
                     <Textarea
+                      id="message"
                       name="message"
-                      placeholder="Your Message"
+                      placeholder="Your message here..."
                       value={formData.message}
                       onChange={handleChange}
                       required
                       rows={6}
-                      className="w-full resize-none bg-background/50 border-border focus:border-primary focus:ring-primary/20"
+                      className="w-full resize-none bg-card border-border focus:border-primary/50 focus:ring-primary/20 transition-all duration-200"
+                      aria-required="true"
                     />
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg font-semibold hover:shadow-[0_0_20px_rgba(3,252,211,0.4)] transition-all duration-300"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base font-semibold transition-all duration-200 btn-glow neon-glow"
                   >
                     Send Message
                   </Button>
                 </form>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

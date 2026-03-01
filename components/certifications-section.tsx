@@ -1,11 +1,9 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { useRef } from "react"
-import { useDirectionalInView } from "@/hooks/use-scroll-direction"
-import { Card, CardContent } from "@/components/ui/card"
+import { useEffect, useRef } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, ExternalLink } from "lucide-react"
+import { ExternalLink, Award } from "lucide-react"
 
 const certifications = [
   {
@@ -39,73 +37,93 @@ const certifications = [
 ]
 
 export function CertificationsSection() {
-  const ref = useRef(null)
-  const isInView = useDirectionalInView(ref, "-100px")
+  const ref = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible")
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      const elements = ref.current.querySelectorAll(".fade-in-up")
+      elements.forEach((el) => observer.observe(el))
+    }
+
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <section id="certifications" className="py-20" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.55 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 gradient-text">
-            Certifications & Achievements
-          </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full" />
-        </motion.div>
+    <section id="certifications" className="section-spacing bg-background" ref={ref}>
+      <div className="container-custom">
+        {/* Section Header */}
+        <div className="text-center mb-16 md:mb-20 fade-in-up">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Award className="h-8 w-8 text-primary" />
+            <h2 className="text-4xl md:text-5xl font-heading font-bold gradient-text">
+              Certifications & Achievements
+            </h2>
+          </div>
+          <div className="w-16 h-1 bg-primary mx-auto rounded-full mb-6 neon-glow" />
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Professional certifications and achievements demonstrating continuous learning
+          </p>
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Certifications Grid */}
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           {certifications.map((cert, index) => (
-            <motion.div
+            <Card
               key={cert.title}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 0.55, delay: index * 0.12 }}
-              whileHover={{ scale: 1.05, y: -10 }}
+              className="h-full group card-modern card-hover flex flex-col fade-in-up"
+              style={{ transitionDelay: `${index * 100}ms` }}
             >
-              <Card className="h-full hover:shadow-xl transition-all duration-300 group border-border/50 hover:border-primary/20 teal-glow">
-                <CardContent className="p-6">
-                  {/* Certificate Image */}
-                  <div className="mb-4 flex justify-center">
+              <CardHeader className="pb-4">
+                {/* Certificate Image */}
+                <div className="mb-4 flex justify-center">
+                  <div className="relative w-40 h-28 rounded-xl overflow-hidden border-2 border-primary/30 group-hover:border-primary/60 transition-all duration-200 shadow-lg shadow-primary/10">
                     <img
                       src={cert.image}
                       alt={`${cert.title} Certificate`}
-                      className="w-32 h-24 object-cover rounded-lg shadow-md"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
                     />
                   </div>
-                  
-                  <div className="flex items-start space-x-4 mb-4">
-                    
-                    <div className="flex-1">
-                      <h3 className="text-xl font-heading font-bold mb-2 group-hover:text-primary transition-colors">
-                        {cert.title}
-                      </h3>
-                      <p className="text-primary font-medium mb-2">{cert.subtitle}</p>
-                      <p className="text-muted-foreground mb-4 leading-relaxed">{cert.description}</p>
+                </div>
+                <CardTitle className="text-xl font-heading text-primary">
+                  {cert.title}
+                </CardTitle>
+                <p className="text-sm text-primary font-medium mt-1">{cert.subtitle}</p>
+              </CardHeader>
 
-                      <div className="flex items-center justify-between">
-                        
+              <CardContent className="flex-1 flex flex-col space-y-4">
+                <p className="text-muted-foreground leading-relaxed flex-1">{cert.description}</p>
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          asChild
-                          className="hover:bg-primary hover:text-white bg-transparent"
-                        >
-                          <a href={cert.link} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            View Certificate
-                          </a>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  asChild
+                  className="w-full bg-transparent hover:bg-card border-border hover:border-primary/50 transition-all duration-200"
+                >
+                  <a
+                    href={cert.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2"
+                    aria-label={`View ${cert.title} certificate`}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View Certificate
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

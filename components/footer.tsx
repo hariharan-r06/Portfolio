@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { Github, Linkedin, Code, Award } from "lucide-react"
 
 const socialLinks = [
@@ -28,38 +27,34 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-card/50 backdrop-blur-sm border-t border-border py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center space-y-6">
+    <footer className="border-t border-border bg-card py-12 md:py-16">
+      <div className="container-custom">
+        <div className="flex flex-col items-center space-y-8">
           {/* Social Links */}
-          <div className="flex space-x-6">
-            {socialLinks.map((link, index) => (
-              <motion.a
+          <nav className="flex flex-wrap justify-center gap-4" aria-label="Social media links">
+            {socialLinks.map((link) => (
+              <a
                 key={link.name}
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.1, y: -2 }}
-                /* Added teal glow hover effect to social links */
-                className="p-3 bg-muted/50 backdrop-blur-sm rounded-lg hover:bg-primary/10 hover:border-primary hover:shadow-[0_0_15px_rgba(3,252,211,0.3)] transition-all duration-300 border border-border"
+                className="p-3 card-modern border-border hover:border-primary/40 rounded-xl hover:scale-105 transition-all duration-200 group hover-glow"
+                aria-label={`Visit ${link.name} profile`}
               >
-                <link.icon className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
-              </motion.a>
+                <link.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+              </a>
             ))}
-          </div>
+          </nav>
 
           {/* Copyright */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-center"
-          >
-            <p className="text-muted-foreground">© 2025 Hariharan R | All Rights Reserved</p>
-          </motion.div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Hariharan R. All rights reserved.
+            </p>
+            <p className="text-xs text-muted-foreground/70 mt-2">
+              Built with Next.js, TypeScript, and Tailwind CSS
+            </p>
+          </div>
         </div>
       </div>
     </footer>

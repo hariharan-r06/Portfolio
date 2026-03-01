@@ -1,8 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { useRef } from "react"
-import { useDirectionalInView } from "@/hooks/use-scroll-direction"
+import { useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Github, ExternalLink } from "lucide-react"
@@ -55,113 +53,135 @@ const projects = [
 ]
 
 export function ProjectsSection() {
-  const ref = useRef(null)
-  const isInView = useDirectionalInView(ref, "-100px")
+  const ref = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible")
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      const elements = ref.current.querySelectorAll(".fade-in-up")
+      elements.forEach((el) => observer.observe(el))
+    }
+
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <section id="projects" className="py-20 bg-muted/30" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.55 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 gradient-text">Featured Projects</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full" />
-        </motion.div>
+    <section id="projects" className="section-spacing bg-background" ref={ref}>
+      <div className="container-custom">
+        {/* Section Header */}
+        <div className="text-center mb-16 md:mb-20 fade-in-up">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 gradient-text">
+            Featured Projects
+          </h2>
+          <div className="w-16 h-1 bg-primary mx-auto rounded-full mb-6 neon-glow" />
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            A collection of projects showcasing my skills and experience
+          </p>
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Projects Grid */}
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           {projects.map((project, index) => (
-            <motion.div
+            <Card
               key={project.title}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 0.55, delay: index * 0.12 }}
-              whileHover={{ scale: 1.02, y: -5 }}
+              className="h-full group card-modern card-hover overflow-hidden flex flex-col fade-in-up"
+              style={{ transitionDelay: `${index * 100}ms` }}
             >
-              <Card className="h-full transition-all duration-500 group border-2 border-border/60 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 hover:scale-[1.03] bg-card/50 backdrop-blur-sm overflow-hidden rounded-xl shadow-lg p-0">
-                {/* Project Image */}
-                <div className="relative h-56 w-full overflow-hidden rounded-t-xl">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              {/* Project Image */}
+              <div className="relative h-48 w-full overflow-hidden">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              </div>
+
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start gap-4 mb-2">
+                  <CardTitle className="text-xl font-heading group-hover:text-primary transition-colors duration-200 flex-1">
+                    {project.title}
+                  </CardTitle>
+                  <span
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium shrink-0 ${
+                      project.status === "Completed"
+                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                        : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                    }`}
+                  >
+                    {project.status}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">{project.date}</p>
+              </CardHeader>
+
+              <CardContent className="flex-1 flex flex-col space-y-4">
+                <p className="text-muted-foreground leading-relaxed flex-1">{project.description}</p>
+
+                {/* Tech Stack */}
+                <div className="flex flex-wrap gap-2">
+                  {project.techStack.map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-2.5 py-1 bg-muted hover:bg-primary/10 border border-border hover:border-primary/30 rounded-md text-xs font-medium text-foreground transition-all duration-200"
+                    >
+                      {tech}
+                    </span>
+                  ))}
                 </div>
 
-                <CardHeader className="px-6 pt-6 pb-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-xl font-heading group-hover:text-primary transition-all duration-300 group-hover:translate-x-1">
-                      {project.title}
-                    </CardTitle>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 group-hover:scale-105 ${
-                        project.status === "Completed"
-                          ? "bg-green-500/20 text-green-400 border border-green-500/30 group-hover:bg-green-500/30"
-                          : "bg-blue-500/20 text-blue-400 border border-blue-500/30 group-hover:bg-blue-500/30"
-                      }`}
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="flex-1 bg-transparent hover:bg-card border-border hover:border-primary/50 transition-all duration-200"
+                  >
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2"
+                      aria-label={`View ${project.title} code on GitHub`}
                     >
-                      {project.status}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">{project.date}</p>
-                </CardHeader>
+                      <Github className="w-4 h-4" />
+                      Code
+                    </a>
+                  </Button>
 
-                <CardContent className="px-6 pb-6 space-y-4">
-                  <p className="text-muted-foreground leading-relaxed">{project.description}</p>
-
-                  <div className="flex flex-wrap gap-2">
-                    {project.techStack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 bg-primary/10 text-primary rounded-lg text-sm font-medium border border-primary/20 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-105 group-hover:shadow-md"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex space-x-3 pt-4">
+                  {project.liveUrl !== "#" && (
                     <Button
-                      variant="outline"
                       size="sm"
                       asChild
-                      className="flex-1 bg-transparent hover:bg-primary/10 hover:border-primary hover:shadow-[0_0_20px_rgba(3,252,211,0.4)] hover:scale-105 transition-all duration-300 group/button rounded-lg"
+                      className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 btn-glow"
                     >
                       <a
-                        href={project.githubUrl}
+                        href={project.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center"
+                        className="flex items-center justify-center gap-2"
+                        aria-label={`View ${project.title} live demo`}
                       >
-                        <Github className="w-4 h-4 mr-2 group-hover/button:text-primary transition-all duration-300 group-hover/button:scale-110" />
-                        Code
+                        <ExternalLink className="w-4 h-4" />
+                        Demo
                       </a>
                     </Button>
-
-                    {project.liveUrl !== "#" && (
-                      <Button
-                        size="sm"
-                        asChild
-                        className="flex-1 bg-primary hover:bg-primary/80 hover:shadow-[0_0_25px_rgba(3,252,211,0.5)] hover:scale-105 transition-all duration-300 rounded-lg"
-                      >
-                        <a
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center"
-                        >
-                          <ExternalLink className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                          Live Demo
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

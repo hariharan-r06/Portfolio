@@ -1,10 +1,8 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import type React from "react"
-import { useDirectionalInView } from "@/hooks/use-scroll-direction"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   FaJava,
   FaJs,
@@ -59,8 +57,27 @@ const skillCategories = [
 ]
 
 export function SkillsSection() {
-  const ref = useRef(null)
-  const isInView = useDirectionalInView(ref, "-100px")
+  const ref = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible")
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      const elements = ref.current.querySelectorAll(".fade-in-up")
+      elements.forEach((el) => observer.observe(el))
+    }
+
+    return () => observer.disconnect()
+  }, [])
 
   const skillIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     Java: FaJava,
@@ -88,60 +105,56 @@ export function SkillsSection() {
   }
 
   return (
-    <section id="skills" className="py-20" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.55 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 gradient-text">Skills & Technologies</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full" />
-        </motion.div>
+    <section id="skills" className="section-spacing bg-background" ref={ref}>
+      <div className="container-custom">
+        {/* Section Header */}
+        <div className="text-center mb-16 md:mb-20 fade-in-up">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 gradient-text">
+            Skills & Technologies
+          </h2>
+          <div className="w-16 h-1 bg-primary mx-auto rounded-full mb-6 neon-glow" />
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Technologies and tools I work with to build modern applications
+          </p>
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {skillCategories.map((category, categoryIndex) => {
+        {/* Skills Grid */}
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+          {skillCategories.map((category, index) => {
             const IconComponent = category.icon
             return (
-              <motion.div
+              <Card
                 key={category.title}
-                initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                transition={{ duration: 0.55, delay: categoryIndex * 0.12 }}
+                className="h-full card-modern card-hover group fade-in-up"
+                style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <Card className="h-full hover:scale-105 transition-all duration-300 group border-2 border-border hover-glow bg-card/50 backdrop-blur-sm">
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4 mb-6">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-                        <IconComponent className="w-6 h-6 text-background" />
-                      </div>
-                      <h3 className="text-xl font-heading font-bold text-primary">{category.title}</h3>
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
+                      <IconComponent className="h-6 w-6 text-primary" />
                     </div>
-
-                    <div className="flex flex-wrap gap-3">
-                      {category.skills.map((skill, skillIndex) => {
-                        const IconForSkill = skillIconMap[skill] ?? FaCode
-                        return (
-                          <motion.span
-                            key={skill}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-                            transition={{
-                              duration: 0.45,
-                              delay: categoryIndex * 0.12 + skillIndex * 0.06,
-                            }}
-                            className="inline-flex items-center gap-2 px-4 py-2 border-2 border-primary/50 text-foreground rounded-full text-sm font-medium hover:bg-primary/10 hover:border-primary hover:shadow-[0_0_15px_rgba(3,252,211,0.5)] transition-all duration-300 cursor-default backdrop-blur-sm"
-                          >
-                            <IconForSkill className="w-4 h-4 text-primary" />
-                            {skill}
-                          </motion.span>
-                        )
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                    <CardTitle className="text-xl font-heading text-primary">
+                      {category.title}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2.5">
+                    {category.skills.map((skill) => {
+                      const IconForSkill = skillIconMap[skill] ?? FaCode
+                      return (
+                        <span
+                          key={skill}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted hover:bg-primary/10 border border-border hover:border-primary/30 rounded-lg text-sm font-medium text-foreground transition-all duration-200 group/item"
+                        >
+                          <IconForSkill className="w-4 h-4 text-primary" />
+                          <span>{skill}</span>
+                        </span>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
             )
           })}
         </div>

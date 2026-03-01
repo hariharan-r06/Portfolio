@@ -1,104 +1,114 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const navItems = [
-  { name: "Home", href: "#home", isExternal: false },
-  { name: "About", href: "#about", isExternal: false },
-  { name: "Skills", href: "#skills", isExternal: false },
-  { name: "Projects", href: "#projects", isExternal: false },
-  { name: "Certifications", href: "#certifications", isExternal: false },
-  { name: "Contact", href: "#contact", isExternal: false },
+  { name: "Home", href: "#home" },
+  { name: "About", href: "#about" },
+  { name: "Skills", href: "#skills" },
+  { name: "Projects", href: "#projects" },
+  { name: "Certifications", href: "#certifications" },
+  { name: "Contact", href: "#contact" },
 ]
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const router = useRouter()
+  const [scrolled, setScrolled] = useState(false)
 
-  const navigateTo = (href: string, isExternal: boolean = false) => {
-    if (isExternal) {
-      router.push(href)
-    } else {
-      // Smooth scroll to section
-      const element = document.querySelector(href)
-      if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
+  useEffect(() => {
+    let ticking = false
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 20)
+          ticking = false
         })
+        ticking = true
       }
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  const navigateTo = (href: string) => {
+    const element = document.querySelector(href)
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      })
     }
     setIsOpen(false)
   }
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border"
+    <nav
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-200",
+        scrolled
+          ? "bg-background/95 backdrop-blur-md border-b border-border shadow-lg"
+          : "bg-background/80 backdrop-blur-sm border-b border-border/50"
+      )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <div className="container-custom">
+        <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.15, duration: 0.4 }}
-            className="font-heading font-bold text-xl gradient-text"
+          <button
+            onClick={() => navigateTo("#home")}
+            className="font-heading font-bold text-xl md:text-2xl gradient-text hover:opacity-80 transition-opacity duration-200"
+            aria-label="Go to home"
           >
             Hariharan R
-          </motion.div>
+          </button>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item, index) => (
-              <motion.button
+          <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+            {navItems.map((item) => (
+              <button
                 key={item.name}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.075 * index, duration: 0.4 }}
-                onClick={() => navigateTo(item.href, item.isExternal)}
-                className="text-foreground hover:text-primary transition-colors duration-200 font-medium hover:glow"
+                onClick={() => navigateTo(item.href)}
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-200 rounded-lg hover:bg-primary/10 relative group"
+                aria-label={`Navigate to ${item.name}`}
               >
                 {item.name}
-              </motion.button>
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-1 bg-primary transition-all duration-200 group-hover:w-3/4 rounded-full neon-glow" />
+              </button>
             ))}
-          </div>
+          </nav>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden"
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.4 }}
-            className="md:hidden py-4 border-t border-border"
-          >
-            {navItems.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => navigateTo(item.href, item.isExternal)}
-                className="block w-full text-left py-2 px-4 text-foreground hover:text-primary hover:bg-muted transition-colors duration-200"
-              >
-                {item.name}
-              </button>
-            ))}
-          </motion.div>
+          <div className="md:hidden overflow-hidden border-t border-border">
+            <nav className="py-4 space-y-1" aria-label="Mobile navigation">
+              {navItems.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => navigateTo(item.href)}
+                  className="block w-full text-left px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-colors duration-200"
+                >
+                  {item.name}
+                </button>
+              ))}
+            </nav>
+          </div>
         )}
       </div>
-    </motion.nav>
+    </nav>
   )
 }

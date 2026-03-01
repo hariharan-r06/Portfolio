@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { Github, Linkedin, Code, Award } from "lucide-react"
 
 const socialLinks = [
@@ -28,35 +27,48 @@ const socialLinks = [
 
 export function SocialBar() {
   return (
-    <motion.div
-      initial={{ x: -100, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ delay: 0.5 }}
-      className="fixed left-4 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col space-y-4"
-    >
-      {socialLinks.map((link, index) => (
-        <motion.a
-          key={link.name}
-          href={link.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.6 + index * 0.1 }}
-          whileHover={{ scale: 1.2, x: 5 }}
-          className="p-3 bg-card border border-border rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 group"
-        >
-          <link.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-        </motion.a>
-      ))}
+    <>
+      {/* Desktop - Fixed Left Side */}
+      <aside
+        className="fixed left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center gap-6"
+        aria-label="Social media links"
+      >
+        <nav className="flex flex-col gap-4">
+          {socialLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 card-modern border-border hover:border-primary/60 rounded-xl hover:scale-110 transition-all duration-200 group hover-glow"
+              aria-label={`Visit ${link.name} profile`}
+            >
+              <link.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+            </a>
+          ))}
+        </nav>
 
-      {/* Vertical line */}
-      <motion.div
-        initial={{ height: 0 }}
-        animate={{ height: 60 }}
-        transition={{ delay: 1 }}
-        className="w-px bg-border mx-auto"
-      />
-    </motion.div>
+        {/* Vertical divider */}
+        <div className="w-px h-16 bg-gradient-to-b from-transparent via-primary/50 to-transparent" />
+      </aside>
+
+      {/* Mobile - Bottom Bar (shown on small screens) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t border-border">
+        <nav className="flex justify-around items-center py-3 px-4" aria-label="Social media links">
+          {socialLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg hover:bg-primary/10 transition-colors duration-200 group"
+              aria-label={`Visit ${link.name} profile`}
+            >
+              <link.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+            </a>
+          ))}
+        </nav>
+      </div>
+    </>
   )
 }
